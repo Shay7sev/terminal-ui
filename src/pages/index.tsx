@@ -28,6 +28,11 @@ const IndexPage: React.FC<IndexPageProps> = ({ inputRef }) => {
     }
   }, [history]);
 
+  console.log(
+    'process.env.NEXT_PUBLIC_ENABLE_TRACKING',
+    process.env.NEXT_PUBLIC_ENABLE_TRACKING,
+  );
+
   return (
     <>
       <Head>

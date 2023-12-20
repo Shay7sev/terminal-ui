@@ -1,5 +1,5 @@
 # build first
-FROM oven/bun:1 AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV production
 COPY ./.next/standalone ./standalone
@@ -12,4 +12,4 @@ ENV NEXT_TELEMETRY_DISABLED 1
 
 EXPOSE 3000
 
-CMD ["bun", "run", "./standalone/server.js"]
+CMD ["node", "./standalone/server.js"]

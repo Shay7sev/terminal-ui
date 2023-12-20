@@ -1,0 +1,35 @@
+# git clone 
+FROM node:alpine AS deps
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+RUN apk add --no-cache libc6-compat
+WORKDIR /deps
+COPY package.json ./
+RUN npm config set registry http://registry.npmmirror.com/
+RUN npm install -g pnpm
+RUN pnpm install --force
+
+FROM node:alpine AS builder
+WORKDIR /build
+COPY . .
+COPY --from=deps /deps/node_modules /node_modules
+RUN npm config set registry http://registry.npmmirror.com/
+RUN npm install -g pnpm
+RUN pnpm install --force
+RUN pnpm build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV production
+COPY --from=builder /build/.next/standalone ./standalone
+COPY --from=builder /build/public /app/standalone/public
+COPY --from=builder /build/.next/static /app/standalone/.next/static
+
+ENV PORT 3000
+
+ENV NEXT_TELEMETRY_DISABLED 1
+
+EXPOSE 3000
+
+CMD ["node", "./standalone/server.js"]
+
+# run docker system prune last
